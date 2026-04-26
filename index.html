@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Data Structures Curriculum</title>
+  <style>
+    /* ── CSS Variables ─────────────────────────────────────── */
+    :root {
+      --color-text-primary:     #111827;
+      --color-text-secondary:   #6B7280;
+      --color-text-tertiary:    #9CA3AF;
+      --color-background-primary:   #FFFFFF;
+      --color-background-secondary: #F9FAFB;
+      --color-border-primary:   #D1D5DB;
+      --color-border-secondary: #E5E7EB;
+      --color-border-tertiary:  #F3F4F6;
+      --border-radius-sm: 6px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    /* ── Reset ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      color: var(--color-text-primary);
+      background: var(--color-background-primary);
+      min-height: 100vh;
+    }
+
+    /* ── Page wrapper ──────────────────────────────────────── */
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    /* ── Header ────────────────────────────────────────────── */
+    .header { padding: 0 0 1rem; }
+    .header h1 { font-size: clamp(16px, 4vw, 20px); font-weight: 600; margin-bottom: 4px; }
+    .header p  { font-size: 13px; color: var(--color-text-secondary); }
+
+    /* ── Legend ────────────────────────────────────────────── */
+    .legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0.75rem 0 1rem;
+      font-size: 12px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .b-yours    { background: #E6F1FB; color: #0C447C; }
+    .b-new      { background: #FAEEDA; color: #633806; }
+    .b-critical { background: #EAF3DE; color: #27500A; }
+    .b-niche    { background: #EEEDFE; color: #3C3489; }
+
+    /* ── Search ────────────────────────────────────────────── */
+    .search-wrap { position: relative; margin-bottom: 0.75rem; }
+    .search-wrap input {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      border: 0.5px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      font-size: 13px;
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-wrap input:focus { border-color: var(--color-border-primary); }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: .4;
+      pointer-events: none;
+    }
+
+    /* ── Controls ──────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    .filter-btn {
+      padding: 5px 13px;
+      border: 0.5px solid var(--color-border-secondary);
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--color-text-secondary);
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      border-color: var(--color-border-primary);
+    }
+    .stat {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ── Category ──────────────────────────────────────────── */
+    .category { margin-bottom: 1.5rem; }
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .cat-header h2 {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .cat-count {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      background: var(--color-background-secondary);
+      padding: 1px 7px;
+      border-radius: 10px;
+    }
+
+    /* ── Card grid ─────────────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+
+    .ds-card {
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-md);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all .15s;
+      background: var(--color-background-primary);
+    }
+    .ds-card:hover {
+      border-color: var(--color-border-primary);
+      background: var(--color-background-secondary);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .ds-card.new      { border-left: 3px solid #EF9F27; }
+    .ds-card.critical { border-left: 3px solid #639922; }
+    .ds-card.niche    { border-left: 3px solid #7F77DD; }
+
+    .ds-name { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+    .ds-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+
+    .tag {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: var(--color-background-secondary);
+      color: var(--color-text-secondary);
+    }
+    .tag.interview { background: #EAF3DE; color: #3B6D11; }
+    .tag.cp        { background: #EEEDFE; color: #534AB7; }
+    .tag.system    { background: #E6F1FB; color: #185FA5; }
+    .tag.new-tag   { background: #FAEEDA; color: #854F0B; }
+
+    /* ── Summary ───────────────────────────────────────────── */
+    .summary {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      background: var(--color-background-secondary);
+    }
+    .summary h3 { font-size: 13px; font-weight: 500; margin-bottom: 10px; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .metric { text-align: center; }
+    .metric .num { font-size: 22px; font-weight: 600; }
+    .metric .lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+
+    /* ── No results ────────────────────────────────────────── */
+    .no-results {
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--color-text-tertiary);
+      font-size: 13px;
+    }
+
+    /* ── Responsive: tablet (≤ 640px) ─────────────────────── */
+    @media (max-width: 640px) {
+      .page { padding: 1rem 0.75rem 2.5rem; }
+
+      .header h1 { font-size: 16px; }
+
+      /* Filters: scroll horizontally instead of collapsing */
+      .controls {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .controls::-webkit-scrollbar { display: none; }
+      .stat { display: none; } /* hide stat on mobile, shown in summary */
+
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 6px;
+      }
+
+      /* Summary: 2×2 on mobile */
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .metric .num { font-size: 26px; }
+    }
+
+    /* ── Responsive: very small (≤ 360px) ─────────────────── */
+    @media (max-width: 360px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      .ds-name { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>Complete Data Structures Curriculum</h1>
+    <p>Every structure worth knowing — from interview staples to competitive programming essentials</p>
+  </div>
+
+  <div class="legend">
+    <span class="badge b-yours">● In your list</span>
+    <span class="badge b-new">+ Added by review</span>
+    <span class="badge b-critical">★ Interview critical</span>
+    <span class="badge b-niche">◆ Niche / academic</span>
+  </div>
+
+  <div class="search-wrap">
+    <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.2"/>
+      <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>
+    <input type="text" id="search" placeholder="Search structures…" oninput="filterAll()">
+  </div>
+
+  <div class="controls">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('new',this)">+ Added</button>
+    <button class="filter-btn" onclick="setFilter('critical',this)">★ Interview critical</button>
+    <button class="filter-btn" onclick="setFilter('interview',this)">Interview</button>
+    <button class="filter-btn" onclick="setFilter('cp',this)">Competitive</button>
+    <button class="filter-btn" onclick="setFilter('system',this)">Systems</button>
+    <span class="stat" id="stat-label">Loading…</span>
+  </div>
+
+  <div id="categories"></div>
+
+  <div class="summary">
+    <h3>Curriculum overview</h3>
+    <div class="summary-grid">
+      <div class="metric">
+        <div class="num" id="total-count">—</div>
+        <div class="lbl">Total structures</div>
+      </div>
+      <div class="metric">
+        <div class="num" id="added-count" style="color:#BA7517">—</div>
+        <div class="lbl">You missed</div>
+      </div>
+      <div class="metric">
+        <div class="num" id="interview-count" style="color:#3B6D11">—</div>
+        <div class="lbl">Interview critical</div>
+      </div>
+      <div class="metric">
+        <div class="num" id="cp-count" style="color:#534AB7">—</div>
+        <div class="lbl">For competitive</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- .page -->
+
+<script>
+const DATA = [
+  {cat:"1. Linear structures", items:[
+    {name:"Array (static)",tags:["interview","critical"],added:false},
+    {name:"Array (dynamic / std::vector)",tags:["interview","critical"],added:false},
+    {name:"Singly linked list",tags:["interview"],added:false},
+    {name:"Doubly linked list",tags:["interview"],added:false},
+    {name:"Circular linked list",tags:["interview"],added:false},
+    {name:"XOR linked list",tags:["system"],added:true,note:"Memory-efficient DLL using XOR of addresses"},
+    {name:"Stack",tags:["interview","critical"],added:false},
+    {name:"Monotonic stack",tags:["interview","critical","cp"],added:true,note:"Essential for next-greater-element problems"},
+    {name:"Queue",tags:["interview","critical"],added:false},
+    {name:"Circular queue",tags:["interview"],added:false},
+    {name:"Deque (double-ended queue)",tags:["interview","cp"],added:false},
+    {name:"Monotonic deque",tags:["interview","cp"],added:true,note:"Sliding window maximum in O(n)"},
+    {name:"Priority queue",tags:["interview","critical"],added:false},
+  ]},
+  {cat:"2. Hash-based structures", items:[
+    {name:"Hash map / hash table",tags:["interview","critical"],added:false},
+    {name:"Hash set",tags:["interview","critical"],added:false},
+    {name:"Collision: chaining",tags:["interview"],added:false},
+    {name:"Collision: open addressing (linear probe)",tags:["interview"],added:false},
+    {name:"Collision: quadratic probing",tags:["interview"],added:true},
+    {name:"Collision: double hashing",tags:["interview"],added:true},
+    {name:"Cuckoo hashing",tags:["system"],added:true,note:"O(1) worst-case lookup; used in network switches"},
+    {name:"Extendible hashing",tags:["system"],added:true,note:"Dynamic hashing for databases"},
+    {name:"Robin Hood hashing",tags:["system"],added:true,note:"Variance-reducing open addressing variant"},
+  ]},
+  {cat:"3. Trees — basic", items:[
+    {name:"Binary tree",tags:["interview","critical"],added:false},
+    {name:"Binary search tree (BST)",tags:["interview","critical"],added:false},
+    {name:"AVL tree",tags:["interview"],added:false},
+    {name:"Red-black tree",tags:["interview"],added:false},
+    {name:"AA tree",tags:[],added:true,note:"Simpler RB-tree variant (Andersson tree)"},
+    {name:"Scapegoat tree",tags:[],added:true,note:"Weight-balanced BST, no per-node metadata"},
+    {name:"Splay tree",tags:["interview","cp"],added:false},
+    {name:"Treap",tags:["interview","cp"],added:false},
+    {name:"Implicit treap",tags:["cp"],added:true,note:"Sequence data structure, supports split/merge by index"},
+    {name:"Order statistics tree (OST)",tags:["interview","cp"],added:true,note:"k-th element & rank queries; GNU PBDS in C++"},
+  ]},
+  {cat:"4. Trees — balanced / disk-oriented", items:[
+    {name:"B-tree",tags:["interview","system"],added:false},
+    {name:"B+ tree",tags:["interview","system"],added:false},
+    {name:"B* tree",tags:["system"],added:true,note:"Higher fill factor variant of B-tree"},
+    {name:"2-3 tree",tags:["interview"],added:false},
+    {name:"2-3-4 tree",tags:["interview"],added:false},
+  ]},
+  {cat:"5. Trees — range / query", items:[
+    {name:"Segment tree",tags:["interview","cp","critical"],added:false},
+    {name:"Segment tree with lazy propagation",tags:["interview","cp","critical"],added:true,note:"Range-update range-query; separate entry needed"},
+    {name:"Segment tree beats (Ji driver)",tags:["cp"],added:true,note:"Chmax/chmin range update queries"},
+    {name:"Persistent segment tree",tags:["cp"],added:true,note:"Immutable versions; kth element on range"},
+    {name:"2D segment tree / Merge sort tree",tags:["cp"],added:true,note:"2D range queries, range rank queries"},
+    {name:"Fenwick tree (BIT)",tags:["interview","cp","critical"],added:false},
+    {name:"2D Fenwick tree",tags:["cp"],added:true,note:"2D prefix sums with point update"},
+    {name:"Sparse table",tags:["interview","cp","critical"],added:true,note:"O(1) RMQ after O(n log n) build; very commonly tested"},
+    {name:"Disjoint sparse table",tags:["cp"],added:true,note:"Non-idempotent range queries in O(1)"},
+    {name:"Sqrt decomposition",tags:["interview","cp"],added:true,note:"Block-based range queries; Mo's algorithm foundation"},
+    {name:"Wavelet tree",tags:["cp"],added:true,note:"Range k-th, range frequency, range rank queries"},
+  ]},
+  {cat:"6. Trees — spatial / geometric", items:[
+    {name:"K-D tree",tags:["interview","cp"],added:false},
+    {name:"Segment tree (interval)",tags:["interview"],added:false},
+    {name:"Interval tree",tags:["interview"],added:false},
+    {name:"Cartesian tree",tags:["cp"],added:false},
+    {name:"R-tree",tags:["system"],added:true,note:"Spatial indexing for geo-queries; used in PostGIS"},
+    {name:"Quad tree",tags:["system","cp"],added:true,note:"2D spatial partitioning; collision detection, maps"},
+    {name:"Octree",tags:["system"],added:true,note:"3D spatial partitioning; game engines"},
+    {name:"Ball tree / VP tree",tags:["system"],added:true,note:"Nearest-neighbor search in metric spaces"},
+  ]},
+  {cat:"7. Trees — string / text", items:[
+    {name:"Trie (prefix tree)",tags:["interview","critical"],added:false},
+    {name:"Compressed trie (Patricia / radix tree)",tags:["interview","system"],added:true,note:"Trie with no one-child nodes; IP routing tables"},
+    {name:"HAT-trie",tags:["system"],added:true,note:"Cache-friendly trie using hash arrays at leaves"},
+    {name:"Suffix tree",tags:["interview","cp"],added:false},
+    {name:"Suffix array",tags:["interview","cp"],added:false},
+    {name:"Suffix automaton (SAM)",tags:["cp"],added:true,note:"All substrings in O(n) space; pattern matching"},
+    {name:"Aho-Corasick automaton",tags:["interview","cp"],added:true,note:"Multi-pattern string matching; used in grep/virus scan"},
+    {name:"Palindrome tree (Eertree)",tags:["cp"],added:true,note:"All palindromic substrings in O(n)"},
+  ]},
+  {cat:"8. Trees — advanced tree structures", items:[
+    {name:"Heavy-light decomposition (HLD)",tags:["cp"],added:true,note:"Reduces tree path queries to segment tree range queries"},
+    {name:"Centroid decomposition",tags:["cp"],added:true,note:"Tree distance problems; divide & conquer on trees"},
+    {name:"Euler tour tree",tags:["cp"],added:true,note:"Dynamic tree connectivity via Euler tour"},
+    {name:"Link-cut tree",tags:["cp"],added:true,note:"Dynamic tree with path queries in O(log n) amortized"},
+    {name:"Van Emde Boas tree",tags:["cp"],added:true,note:"O(log log U) ops on integer universe [0,U)"},
+    {name:"X-fast / Y-fast trie",tags:["cp"],added:true,note:"Predecessor/successor in O(log log U)"},
+    {name:"Merkle tree",tags:["system"],added:true,note:"Cryptographic hash tree; blockchain, Git, IPFS"},
+  ]},
+  {cat:"9. Heap structures", items:[
+    {name:"Binary heap (min / max)",tags:["interview","critical"],added:false},
+    {name:"Fibonacci heap",tags:["interview"],added:false},
+    {name:"Binomial heap",tags:["interview"],added:false},
+    {name:"Pairing heap",tags:["cp"],added:true,note:"Fast decrease-key; simpler than Fibonacci in practice"},
+    {name:"Leftist heap",tags:["cp"],added:true,note:"Mergeable heap in O(log n)"},
+    {name:"Skew heap",tags:["cp"],added:true,note:"Simpler mergeable heap; amortized O(log n)"},
+    {name:"Randomized meldable heap",tags:["cp"],added:true,note:"Merge-based heap with randomized O(log n)"},
+    {name:"d-ary heap",tags:["interview"],added:true,note:"Generalization of binary heap; Dijkstra optimization"},
+  ]},
+  {cat:"10. Graph representations", items:[
+    {name:"Adjacency list",tags:["interview","critical"],added:false},
+    {name:"Adjacency matrix",tags:["interview"],added:false},
+    {name:"Edge list",tags:["interview"],added:false},
+    {name:"Compressed sparse row (CSR)",tags:["system","cp"],added:true,note:"Cache-friendly adjacency list used in high-perf graph libs"},
+  ]},
+  {cat:"11. Disjoint set / union-find", items:[
+    {name:"Disjoint set (basic)",tags:["interview","critical"],added:false},
+    {name:"Union by rank + path compression",tags:["interview","critical"],added:false},
+    {name:"Weighted / bipartite DSU",tags:["cp"],added:true,note:"Track edge weights or parity across components"},
+    {name:"Offline DSU with rollback",tags:["cp"],added:true,note:"Undo union operations; used in offline LCT problems"},
+  ]},
+  {cat:"12. Probabilistic / approximate structures", items:[
+    {name:"Skip list",tags:["interview"],added:false},
+    {name:"Bloom filter",tags:["interview","system"],added:false},
+    {name:"Counting Bloom filter",tags:["system"],added:true,note:"Supports deletions unlike standard Bloom filter"},
+    {name:"Cuckoo filter",tags:["system"],added:true,note:"Better than Bloom: supports deletion, lower FPR"},
+    {name:"Quotient filter",tags:["system"],added:true,note:"Cache-friendly filter, supports merging"},
+    {name:"Count-Min sketch",tags:["interview","system"],added:false},
+    {name:"HyperLogLog",tags:["system"],added:true,note:"Cardinality estimation with tiny memory; used in Redis, BigQuery"},
+    {name:"T-Digest",tags:["system"],added:true,note:"Online quantile estimation; Prometheus, observability"},
+    {name:"MinHash / LSH",tags:["system"],added:true,note:"Approximate similarity; used in dedup, recommendations"},
+  ]},
+  {cat:"13. Specialized / system-level structures", items:[
+    {name:"LRU cache (HashMap + DLL)",tags:["interview","critical"],added:false},
+    {name:"LFU cache",tags:["interview"],added:false},
+    {name:"Circular / ring buffer",tags:["interview","system"],added:false},
+    {name:"Rope",tags:["interview","system"],added:false},
+    {name:"Bitset / bitmap",tags:["interview","cp"],added:false},
+    {name:"Gap buffer",tags:["system"],added:true,note:"Text editor cursor management (Emacs uses this)"},
+    {name:"Piece table",tags:["system"],added:true,note:"Efficient text editing; used by VS Code, Word"},
+    {name:"Finger tree",tags:["system"],added:true,note:"Functional sequence with O(1) access to both ends"},
+    {name:"Persistent / functional data structures",tags:["cp","system"],added:true,note:"Immutable versions with structural sharing"},
+    {name:"Lock-free concurrent structures",tags:["system"],added:true,note:"CAS-based queues, stacks; used in high-perf systems"},
+  ]},
+  {cat:"14. External / database structures", items:[
+    {name:"ISAM",tags:["system"],added:false},
+    {name:"LSM tree",tags:["interview","system"],added:false},
+    {name:"Fractal tree index",tags:["system"],added:true,note:"Write-optimized B-tree variant (TokuDB, MariaDB)"},
+    {name:"Bε-tree",tags:["system"],added:true,note:"Cache-oblivious generalization of B-tree"},
+    {name:"Cache-oblivious data structures",tags:["system"],added:true,note:"Optimal for all memory hierarchy levels simultaneously"},
+    {name:"CRDT (conflict-free replicated data type)",tags:["system"],added:true,note:"Distributed systems; auto-merging concurrent edits"},
+  ]},
+];
+
+let activeFilter = 'all';
+
+function renderAll() {
+  const search = document.getElementById('search').value.toLowerCase();
+  const container = document.getElementById('categories');
+  container.innerHTML = '';
+  let total = 0, added = 0, interview = 0, cp = 0, visible = 0;
+
+  DATA.forEach(section => {
+    const filteredItems = section.items.filter(item => {
+      const matchSearch = !search ||
+        item.name.toLowerCase().includes(search) ||
+        (item.note || '').toLowerCase().includes(search) ||
+        item.tags.some(t => t.includes(search));
+      const matchFilter =
+        activeFilter === 'all' ||
+        (activeFilter === 'new'       && item.added) ||
+        (activeFilter === 'critical'  && item.tags.includes('critical')) ||
+        (activeFilter === 'interview' && item.tags.includes('interview')) ||
+        (activeFilter === 'cp'        && item.tags.includes('cp')) ||
+        (activeFilter === 'system'    && item.tags.includes('system'));
+      return matchSearch && matchFilter;
+    });
+
+    section.items.forEach(i => {
+      total++;
+      if (i.added)                    added++;
+      if (i.tags.includes('interview')) interview++;
+      if (i.tags.includes('cp'))        cp++;
+    });
+
+    if (filteredItems.length === 0) return;
+    visible += filteredItems.length;
+
+    const sec = document.createElement('div');
+    sec.className = 'category';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'cat-header';
+    hdr.innerHTML = `<h2>${section.cat}</h2><span class="cat-count">${filteredItems.length}</span>`;
+    sec.appendChild(hdr);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+
+    filteredItems.forEach(item => {
+      const card = document.createElement('div');
+      let cls = 'ds-card';
+      if (item.added) cls += ' new';
+      else if (item.tags.includes('critical')) cls += ' critical';
+      else if (!item.tags.includes('interview') && !item.tags.includes('cp')) cls += ' niche';
+      card.className = cls;
+
+      const nameLine = `<div class="ds-name">${item.name}${item.added ? ' <span style="color:#BA7517;font-size:10px;font-weight:400">+ added</span>' : ''}</div>`;
+      const tags = item.tags
+        .filter(t => t !== 'critical')
+        .map(t => `<span class="tag ${t}">${t === 'interview' ? '★ interview' : t === 'cp' ? '⚡ CP' : t === 'system' ? '⚙ system' : t}</span>`)
+        .join('');
+      const note = item.note ? `<div style="font-size:11px;color:#9CA3AF;margin-top:4px">${item.note}</div>` : '';
+      card.innerHTML = nameLine + `<div class="ds-tags">${tags}</div>` + note;
+      grid.appendChild(card);
+    });
+
+    sec.appendChild(grid);
+    container.appendChild(sec);
+  });
+
+  document.getElementById('total-count').textContent     = total;
+  document.getElementById('added-count').textContent     = added;
+  document.getElementById('interview-count').textContent = interview;
+  document.getElementById('cp-count').textContent        = cp;
+  document.getElementById('stat-label').textContent      = `Showing ${visible} of ${total}`;
+
+  if (visible === 0) {
+    container.innerHTML = `<div class="no-results">No structures match your filter. Try "All" or adjust your search.</div>`;
+  }
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+function filterAll() { renderAll(); }
+
+renderAll();
+</script>
+</body>
+</html>
